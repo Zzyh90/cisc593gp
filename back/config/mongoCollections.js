@@ -1,3 +1,4 @@
+const appointments = require("../dao/appointments");
 const dbConnection = require("./mongoConnection");
 
 const getCollectionFn = collection => {
@@ -14,5 +15,6 @@ const getCollectionFn = collection => {
 };
 
 module.exports = {
-    users: getCollectionFn("users")
+    users: getCollectionFn("users"),
+    appointments: getCollectionFn("appointments")
 };
