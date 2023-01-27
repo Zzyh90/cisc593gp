@@ -30,9 +30,7 @@ module.exports = {
 
             await newUser.save()
 
-            return {
-                userId:newUser._id
-            }
+            return newUser._id
         }catch(err){
             throw err
         }
@@ -54,7 +52,6 @@ module.exports = {
 
             const user= await Users.findById(id)
             const { password, ...other } = user._doc;
-            res.status(200).json(other);
             return user;
         }catch(err){
             return err
@@ -68,7 +65,6 @@ module.exports = {
             }
             const user = await Users.findOne({email:email})
             const { password, ...other } = user._doc;
-            res.status(200).json(other);
             return user;
         }catch(err){
             return err
@@ -91,7 +87,9 @@ module.exports = {
         if (updatedUser.email) {
           updatedUserData.email = updatedUser.email;
         }
-
+        if(typeof id ==='string'){
+            id = ObjectId(id);
+        };
         let result = await Users.updateOne({_id:id}, {$set:updatedUserData});
         if(result.modifiedCount === 0) throw "update failed"
         return await this.getUser(id);
@@ -103,12 +101,10 @@ module.exports = {
             userId = ObjectId(userId);
         };
         appointmentId = appointmentId.toString();
-        const usersCollection = await users();
         const user = await Users.findOne({ _id: userId });
         if(!user.isDoctor){
             throw 'Not a doctor'
         }else{
-            //Need to check time conflict
             const updateInfo = await Users.updateOne({_id:userId},{$push:{doctorAppointments:appointmentId}});
             if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to doctor';
         }
@@ -127,7 +123,6 @@ module.exports = {
         if(user.isDoctor){
             throw 'Not a user'
         }else{
-            //Need to check time conflict
             const updateInfo = await Users.updateOne({_id:userId},{$push:{userAppointments:appointmentId}});
             if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to user';
         }
