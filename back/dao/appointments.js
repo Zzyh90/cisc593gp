@@ -2,6 +2,7 @@ const Appointments = require('../model/Appointments');
 const Users= require('../model/Users')
 const Util = require('../common/utils')
 const users = require('../dao/users')
+const { ObjectId } = require('mongodb');
 
 module.exports={
     async createAppointment(userId, doctorId, timestart, timeend,description){
@@ -28,33 +29,28 @@ module.exports={
 
             //check time availiable for the doctor and user---->
             const usersAppointments = user.userAppointments
-            const doctorsAppointments = doctor.userAppointments
-            let validTimeFlag = true;
-            for(let appointmentId of usersAppointments){
-                let appointment = await Appointments.findById(appointmentId)
-                validTimeFlag = validTimeFlag && Util.checkValidTimestamp(timestart, timeend,appointment.timeStart,appointment.timeEnd)
-            }
-            for(let appointmentId of doctorsAppointments){
-                let appointment = await Appointments.findById(appointmentId)
-                validTimeFlag = validTimeFlag && Util.checkValidTimestamp(timestart, timeend,appointment.timeStart,appointment.timeEnd)
-            }
+            const doctorsAppointments = doctor.doctorAppointments
+
+            const validTimeFlag = await this.checkTimeValidation(timestart, timeend,usersAppointments) && await this.checkTimeValidation(timestart, timeend,doctorsAppointments);
+
             if(validTimeFlag){
-                const newAppointment = new Appointments({
-                    userId: userId,
-                    doctorId:doctorId,
-                    timestart:timestart,
-                    timeend:timeend,
-                    description:description
-                })
-    
-                await newAppointment.save()
-                
-                return {
-                    appointmentId:newAppointment._id
-                } 
+                    const newAppointment = new Appointments({
+                        userId: userId,
+                        doctorId:doctorId,
+                        timeStart:timestart,
+                        timeEnd:timeend,
+                        description:description
+                    })
+        
+                    const insertInfo = await newAppointment.save()
+                    await users.addAppointmentsTodoctor(doctorId,insertInfo._id)
+                    await users.addAppointmentsToUser(userId,insertInfo._id)
+                    
+                    return newAppointment._id
             }else{
-                return 'Invalid time'
+                    return "Invalid Time"
             }
+
 
         }catch(err){
             throw err
@@ -67,7 +63,7 @@ module.exports={
         try{
             return await Appointments.findAll()
         }catch(err){
-            return err
+            throw err
         }
     },
 
@@ -76,5 +72,18 @@ module.exports={
         const theappointments = await Appointments.findOne({_id:id});
         if(theappointments === null) throw new Error('No appointments with this id');
         return theappointments;
+    },
+    async checkTimeValidation(timestart,timeend,appointments){
+        if(appointments.length==0) return true;
+        const appointmentsObject = await Appointments.find({_id:{$in:appointments}});
+        let valid;
+        for(let i=0;i<appointmentsObject.length;i++){
+            if(i==0){
+                valid = Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+            }else{
+                valid = valid&Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+            }
+        }
+        return valid;
     }
 }
