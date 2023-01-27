@@ -20,6 +20,7 @@ async function main(){
       const user0= await users.addUser('JaneToJohn','Baker','janeb@example.com','123123',false)
       console.log(user0)
       await mongoose.connection.close()
+
 }
 
 main().catch((error) => {
