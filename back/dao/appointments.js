@@ -14,7 +14,7 @@ module.exports={
 
             const user= Users.findById(userId)
 
-            if(!user) throw 'user cannot be found'
+            if(!user) throw new Error('user cannot be found')
 
             const doctor = Users.findById(doctorId)
 
@@ -55,10 +55,9 @@ module.exports={
     },
 
     async getAppointments(id){
-        const appointmentsCollection = await appointmentses();
         if(typeof(id)=='string') id = ObjectId(id);
-        const theappointments = await appointmentsCollection.findOne({_id:id});
-        if(theappointments === null) throw 'No appointments with this id';
+        const theappointments = await Appointments.findOne({_id:id});
+        if(theappointments === null) throw new Error('No appointments with this id');
         return theappointments;
     }
 }
