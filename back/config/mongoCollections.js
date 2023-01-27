@@ -1,4 +1,3 @@
-const appointments = require("../dao/appointments");
 const dbConnection = require("./mongoConnection");
 
 const getCollectionFn = collection => {

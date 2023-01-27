@@ -16,12 +16,13 @@ module.exports={
             doctorId:doctorId,
             timestart:timestart,
             timeend:timeend,
-            description:description
+            description:description,
+            comments:[]
         }
         const insertInfo = await appointmentsCollection.insertOne(newAppointment);
         if(insertInfo.insertedCount==0) throw 'cannot add appointments';
         const appointmentId = insertInfo.insertedId;
-        return await this.getAllAppointments(appointmentId); 
+        return await this.getAppointments(appointmentId); 
     },
 
     
@@ -31,10 +32,26 @@ module.exports={
     },
 
     async getAppointments(id){
-        const appointmentsCollection = await appointmentses();
+        const appointmentsCollection = await appointments();
         if(typeof(id)=='string') id = ObjectId(id);
         const theappointments = await appointmentsCollection.findOne({_id:id});
         if(theappointments === null) throw 'No appointments with this id';
         return theappointments;
+    },
+
+    async getAllAppointmentsForDoctor(doctorId){
+        const appointmentsCollection = await appointments();
+        if(typeof(doctorId)=='string') doctorId = ObjectId(doctorId);
+        const doctorAppointments = await appointmentsCollection.find({doctorId:doctorId}).toArray()
+        if(doctorAppointments == null) throw 'No appointments with this doctorId';
+        return doctorAppointments;
+    },
+
+    async getAllAppointmentsForUser(userId){
+        const appointmentsCollection = await appointments();
+        if(typeof(userId)=='string') userId = ObjectId(userId);
+        const doctorAppointments = await appointmentsCollection.find({userId:userId}).toArray()
+        if(doctorAppointments == null) throw 'No appointments with this userId';
+        return doctorAppointments;
     }
 }

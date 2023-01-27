@@ -23,9 +23,25 @@ async function main(){
     let timeend = new Date();
     timeend.setFullYear(2023,00,26)
     timeend.setHours(13,0,0,0);
-    let appointment = await appointments.createAppointment(user0._id,doctor0._id,timestart, timeend,"testAppointments");
-    console.log(appointment);
+    let appointment0 = await appointments.createAppointment(user0._id,doctor0._id,timestart, timeend,"testAppointments");
+    timestart = new Date();
+    timestart.setFullYear(2023,00,27)
+    timestart.setHours(12,0,0,0);
+    timeend = new Date();
+    timeend.setFullYear(2023,00,27)
+    timeend.setHours(13,0,0,0);
+    let appointment1 = await appointments.createAppointment(user1._id,doctor0._id,timestart, timeend,"testAppointments1");
+    users.addAppointmentsTodoctor(doctor0._id,appointment0._id);
+    users.addAppointmentsToUser(user0._id,appointment0._id);
+    let doctor0appointments = await appointments.getAllAppointmentsForDoctor(doctor0._id);
+    console.log(doctor0appointments);
+
+
     // await db.serverConfig.close();
+    let updateUser = {
+        firstName: 'JaneToJohn'
+    }
+    doctor0 = await users.updateUser(doctor0._id, updateUser);
     await db.s.client.close();
 }
 

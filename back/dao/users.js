@@ -53,4 +53,65 @@ module.exports = {
         }
         return user;
     },
+
+    async updateUser(id , updatedUser) {
+        const usersCollection = await users();
+        id = ObjectId(id)
+        const updatedUserData = {};
+    
+        if (updatedUser.firstName) {
+          updatedUserData.firstName = updatedUser.firstName;
+        }
+    
+        if (updatedUser.lastName) {
+          updatedUserData.lastName = updatedUser.lastName;
+        }
+    
+        if (updatedUser.email) {
+          updatedUserData.email = updatedUser.email;
+        }
+
+        let result = await usersCollection.updateOne({_id:id}, {$set:updatedUserData});
+        if(result.modifiedCount === 0) throw "update failed"
+        return await this.getUser(id);
+    },
+    async addAppointmentsTodoctor(userId, appointmentId){
+        if(!userId) throw 'You must provide a user id';
+        if(!appointmentId) throw 'You must provide a appointment id';
+        if(typeof userId ==='string'){
+            userId = ObjectId(userId);
+        };
+        appointmentId = appointmentId.toString();
+        const usersCollection = await users();
+        const user = await usersCollection.findOne({ _id: userId });
+        if(!user.isdoctor){
+            throw 'Not a doctor'
+        }else{
+            //Need to check time conflict
+            const updateInfo = await usersCollection.updateOne({_id:userId},{$push:{doctorAppointments:appointmentId}});
+            if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to doctor';
+        }
+
+        return true;
+        
+    },
+    async addAppointmentsToUser(userId, appointmentId){
+        if(!userId) throw 'You must provide a user id';
+        if(!appointmentId) throw 'You must provide a appointment id';
+        if(typeof userId ==='string'){
+            userId = ObjectId(userId);
+        };
+        appointmentId = appointmentId.toString();
+        const usersCollection = await users();
+        const user = await usersCollection.findOne({ _id: userId });
+        if(user.isdoctor){
+            throw 'Not a user'
+        }else{
+            //Need to check time conflict
+            const updateInfo = await usersCollection.updateOne({_id:userId},{$push:{userAppointments:appointmentId}});
+            if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to user';
+        }
+
+        return true;
+    }
 }
