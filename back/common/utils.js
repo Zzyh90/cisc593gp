@@ -8,6 +8,7 @@ function determineTime(newTimeStart, newTimeEnd, oldTimeStart, oldTimeEnd) {
         throw "Start time must be earlier that end time";
     }
 
+
     return newTimeEnd < oldTimeStart || newTimeStart > oldTimeEnd;
 }
 

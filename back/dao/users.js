@@ -1,9 +1,11 @@
 
 const Users = require("../model/Users")
+const bcrypt = require("bcrypt")
+
 
 
 module.exports = {
-    async addUser(firstName, lastName, email, passwordHash, isdoctor, doctorAppointments = [],userAppointments=[]) {
+    async addUser(firstName, lastName, email, password, isdoctor, doctorAppointments = [],userAppointments=[]) {
 
 
         try {
@@ -11,14 +13,16 @@ module.exports = {
             if(!lastName || typeof lastName!= 'string') throw 'you must provide a valid last name';
             if(!email || typeof email!= 'string') throw 'you must provide a valid email';
             if(typeof isdoctor !='boolean') throw 'you must indicate you are doctor or not';
-            if(!passwordHash || typeof passwordHash!= 'string') throw 'you must provide a valid password hash';
+            if(!password || typeof password!= 'string') throw 'you must provide a valid password hash';
+
+            const hashedPassword= await bcrypt.hash(password, 10)
 
 
             const newUser= new Users({
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
-                passwordHash: passwordHash,
+                password: hashedPassword,
                 isDoctor:isdoctor,
                 doctorAppointments:doctorAppointments,
                 userAppointments: userAppointments,
@@ -26,9 +30,7 @@ module.exports = {
 
             await newUser.save()
 
-            return {
-                userId:newUser._id
-            }
+            return newUser._id
         }catch(err){
             throw err
         }
@@ -50,7 +52,6 @@ module.exports = {
 
             const user= await Users.findById(id)
             const { password, ...other } = user._doc;
-            res.status(200).json(other);
             return user;
         }catch(err){
             return err
@@ -64,7 +65,6 @@ module.exports = {
             }
             const user = await Users.findOne({email:email})
             const { password, ...other } = user._doc;
-            res.status(200).json(other);
             return user;
         }catch(err){
             return err
@@ -87,7 +87,9 @@ module.exports = {
         if (updatedUser.email) {
           updatedUserData.email = updatedUser.email;
         }
-
+        if(typeof id ==='string'){
+            id = ObjectId(id);
+        };
         let result = await Users.updateOne({_id:id}, {$set:updatedUserData});
         if(result.modifiedCount === 0) throw "update failed"
         return await this.getUser(id);
@@ -99,12 +101,10 @@ module.exports = {
             userId = ObjectId(userId);
         };
         appointmentId = appointmentId.toString();
-        const usersCollection = await users();
         const user = await Users.findOne({ _id: userId });
         if(!user.isDoctor){
             throw 'Not a doctor'
         }else{
-            //Need to check time conflict
             const updateInfo = await Users.updateOne({_id:userId},{$push:{doctorAppointments:appointmentId}});
             if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to doctor';
         }
@@ -123,7 +123,6 @@ module.exports = {
         if(user.isDoctor){
             throw 'Not a user'
         }else{
-            //Need to check time conflict
             const updateInfo = await Users.updateOne({_id:userId},{$push:{userAppointments:appointmentId}});
             if(updateInfo.modifiedCount === 0) throw 'Can not add appointment to user';
         }
