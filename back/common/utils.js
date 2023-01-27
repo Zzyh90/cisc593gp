@@ -1,13 +1,12 @@
 function determineTime(newTimeStart, newTimeEnd, oldTimeStart, oldTimeEnd) {
     if (!this.checkValidTimestamp(newTimeStart) || !this.checkValidTimestamp(newTimeEnd) || !this.checkValidTimestamp(oldTimeStart)
         || !this.checkValidTimestamp(oldTimeEnd)) {
-        console.log("Invalid input time");
-        return;
+        throw "Invalid input time";
+
     }
 
     if (!this.checkStartEndValidation(newTimeStart, newTimeEnd) || !this.checkStartEndValidation(oldTimeStart, oldTimeEnd)) {
-        console.log("Start time must be earlier that end time");
-        return;
+        throw "Start time must be earlier that end time";
     }
 
     return newTimeEnd < oldTimeStart || newTimeStart > oldTimeEnd;
