@@ -19,7 +19,7 @@ module.exports = {
                 lastName: lastName,
                 email: email,
                 passwordHash: passwordHash,
-                isdoctor:isdoctor,
+                isDoctor:isdoctor,
                 doctorAppointments:doctorAppointments,
                 userAppointments: userAppointments,
             })
