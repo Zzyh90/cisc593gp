@@ -14,7 +14,7 @@ module.exports={
 
             const user= Users.findById(userId)
 
-            if(!user) throw 'user cannot be found'
+            if(!user) throw new Error('user cannot be found')
 
             const doctor = Users.findById(doctorId)
 
