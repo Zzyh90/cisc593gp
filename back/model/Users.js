@@ -7,7 +7,7 @@ const usersSchema=new Schema(
         firstName:String,
         lastName:String,
         email:String,
-        passwordHash:String,
+        password:String,
         isDoctor: Boolean,
         doctorAppointments:{
             type:Array,

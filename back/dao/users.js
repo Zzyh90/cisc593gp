@@ -1,9 +1,11 @@
 
 const Users = require("../model/Users")
+const bcrypt = require("bcrypt")
+
 
 
 module.exports = {
-    async addUser(firstName, lastName, email, passwordHash, isdoctor, doctorAppointments = [],userAppointments=[]) {
+    async addUser(firstName, lastName, email, password, isdoctor, doctorAppointments = [],userAppointments=[]) {
 
 
         try {
@@ -11,14 +13,16 @@ module.exports = {
             if(!lastName || typeof lastName!= 'string') throw 'you must provide a valid last name';
             if(!email || typeof email!= 'string') throw 'you must provide a valid email';
             if(typeof isdoctor !='boolean') throw 'you must indicate you are doctor or not';
-            if(!passwordHash || typeof passwordHash!= 'string') throw 'you must provide a valid password hash';
+            if(!password || typeof password!= 'string') throw 'you must provide a valid password hash';
+
+            const hashedPassword= await bcrypt.hash(password, 10)
 
 
             const newUser= new Users({
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
-                passwordHash: passwordHash,
+                password: hashedPassword,
                 isDoctor:isdoctor,
                 doctorAppointments:doctorAppointments,
                 userAppointments: userAppointments,
