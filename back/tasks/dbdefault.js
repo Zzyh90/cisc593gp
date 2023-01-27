@@ -1,7 +1,5 @@
-const dbConnection = require('../config/mongoConnection');
-const data = require('../dao/');
-const users = data.users;
-const appointments = data.appointments;
+const users = require("../model/Users")
+const appointments = require("../model/Appointments")
 const passwordHash = require('password-hash');
 
 async function main(){
