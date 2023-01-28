@@ -39,7 +39,8 @@ module.exports={
                         doctorId:doctorId,
                         timeStart:timestart,
                         timeEnd:timeend,
-                        description:description
+                        description:description,
+                        status:'Active'
                     })
         
                     const insertInfo = await newAppointment.save()
@@ -48,7 +49,7 @@ module.exports={
                     
                     return newAppointment._id
             }else{
-                    return "Invalid Time"
+                    throw "Invalid Time"
             }
 
 
@@ -69,11 +70,17 @@ module.exports={
 
     async getAppointments(id){
         if(typeof(id)=='string') id = ObjectId(id);
-        const theappointments = await Appointments.findOne({_id:id});
-        if(theappointments === null) throw new Error('No appointments with this id');
-        return theappointments;
+        try{
+            const theappointments = await Appointments.findOne({_id:id});
+            if(theappointments === null) throw 'No appointments with this id';
+            return theappointments;
+        }catch(e){
+            throw e
+        }
+        
     },
     async checkTimeValidation(timestart,timeend,appointments){
+        if(!Array.isArray(appointments)) throw 'appointments is not an array'
         if(appointments.length==0) return true;
         const appointmentsObject = await Appointments.find({_id:{$in:appointments}});
         let valid;
@@ -85,5 +92,47 @@ module.exports={
             }
         }
         return valid;
+    },
+
+    async updateAppointment(id, timeStart,timeEnd,description,status){
+        if(typeof(id)=='string') id = ObjectId(id);
+        const appointment = await this.getAppointments(id);
+        if(!appointment) throw 'Invalid appointment Id'
+        const user= await users.getUser(appointment.userId)
+        const doctor = await users.getUser(appointment.doctorId)
+        const usersAppointments = user.userAppointments
+        usersAppointments.splice(usersAppointments.indexOf(id,1))
+        const doctorsAppointments = doctor.doctorAppointments
+        doctorsAppointments.splice(doctorsAppointments.indexOf(id,1))
+        if((timeStart != null && timeStart != undefined) || (timeEnd != null && timeEnd != undefined)){
+            if(timeStart == null || timeStart == undefined) timeStart = appointment.timeStart
+            if(timeEnd == null || timeEnd == undefined) timeEnd = appointment.timeEnd
+            const validTimeFlag = await this.checkTimeValidation(timeStart, timeEnd,usersAppointments) && await this.checkTimeValidation(timeStart, timeEnd,doctorsAppointments);
+            if(validTimeFlag){
+                const updatedAppointment = {
+                    userId: appointment.userId,
+                    doctorId:appointment.doctorId,
+                    timeStart:timeStart,
+                    timeEnd:timeEnd,
+                    description:description==undefined||description==null?appointment.description:description,
+                    status:status==undefined||status==null?appointment.status:status
+                }
+    
+                const insertInfo = await Appointments.updateOne({_id:id},{$set:updatedAppointment})
+                return insertInfo._id
+            }else{
+                throw "Invalid Time"
+            }
+        }
+            const updatedAppointment = {
+                userId: appointment.userId,
+                doctorId:appointment.doctorId,
+                timeStart:appointment.timeStart,
+                timeEnd:appointment.timeEnd,
+                description:description==undefined||description==null?appointment.description:description,
+                status:status==undefined||status==null?appointment.status:status
+            }
+            const insertInfo = await Appointments.updateOne({_id:id},{$set:updatedAppointment})
+            return insertInfo._id
     }
 }

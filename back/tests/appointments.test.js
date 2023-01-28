@@ -48,8 +48,59 @@ describe("appointment creation", ()=>{
         const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
 
         const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description");
-
-        expect(await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T09:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description")).toEqual("Invalid Time")
+        try{
+            await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T09:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description")
+        }catch(e){
+            expect(e).toEqual('Invalid Time')
+        }
         
+        
+    })
+    it('update an appointment with new description', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description");
+        const oldApp = await Appointments.findById(appointId);
+        await appointments.updateAppointment(appointId,null,null,"updated test description", null);
+        const updatedApp = await Appointments.findById(appointId);
+        expect(updatedApp._id).toEqual(oldApp._id)
+        expect(updatedApp.timeStart).toEqual(oldApp.timeStart)
+        expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
+        expect(updatedApp.description).not.toEqual(oldApp.description)
+        expect(updatedApp.description).toEqual("updated test description")
+        expect(updatedApp.status).toEqual(oldApp.status)
+    })
+
+    it('update an appointment with new time', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const appointId1 = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T11:00:00'),new Date('2023-01-26T14:30:00'),"test appointment description2");
+        const oldApp = await Appointments.findById(appointId);
+        await appointments.updateAppointment(appointId,new Date('2023-01-26T10:00:00'),new Date('2023-01-26T10:30:00'),"updated test description1", null);
+        const updatedApp = await Appointments.findById(appointId);
+        expect(updatedApp._id).toEqual(oldApp._id)
+        expect(updatedApp.timeStart).toEqual(new Date('2023-01-26T10:00:00'))
+        expect(updatedApp.timeEnd).toEqual(new Date('2023-01-26T10:30:00'))
+        expect(updatedApp.description).toEqual("updated test description1")
+    })
+
+    it('update an appointment with new conflict time', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const appointId1 = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T11:00:00'),new Date('2023-01-26T14:30:00'),"test appointment description2");
+        const oldApp = await Appointments.findById(appointId);
+        try{
+            await appointments.updateAppointment(appointId,new Date('2023-01-26T09:00:00'),new Date('2023-01-26T11:30:00'),"updated test description1", null);
+        }catch(e){
+            expect(e).toEqual('Invalid Time')
+        }
+        const updatedApp = await Appointments.findById(appointId);
+        expect(updatedApp._id).toEqual(oldApp._id)
+        expect(updatedApp.timeStart).toEqual(oldApp.timeStart)
+        expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
+        expect(updatedApp.description).toEqual(oldApp.description)
+        expect(updatedApp.status).toEqual(oldApp.status)
     })
 })

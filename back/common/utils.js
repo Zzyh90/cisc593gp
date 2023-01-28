@@ -20,7 +20,6 @@ function checkValidTimestamp(time) {
 }
 
 function checkStartEndValidation(start, end) {
-    console.log(!this.checkValidTimestamp(start))
     if (!this.checkValidTimestamp(start) || !this.checkValidTimestamp(end)) {
         throw "Invalid input time";
     }

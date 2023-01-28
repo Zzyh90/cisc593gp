@@ -33,4 +33,14 @@ router.get("/appointment/:id",async(req,res)=>{
     }
 })
 
+router.post("/updateAppointment", async(req,res)=>{
+    try{
+        const {userId, doctorId, timeStart, timeEnd, description,status} = req.body
+        const updatedAppointment = await appointments.updateAppointment(req.params.id, timeStart,timeEnd,description,status)
+        res.status(200).json(updatedAppointment)
+    }catch(err){
+        res.stats(500).json({"errorMessage":error.toString()})
+    }
+})
+
 module.exports = router;
