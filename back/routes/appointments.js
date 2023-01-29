@@ -11,7 +11,7 @@ router.post("/createAppointment",async(req,res)=>{
        const {appointmentId}= await appointments.createAppointment(userId,doctorId,timeStart, timeEnd, description)
        res.status(200).json(appointmentId)
     }catch(err){
-        res.status(500).json({"errorMessage":err.toString()})
+        res.status(500).json({errorMessage:err.toString()})
     }
 })
 
@@ -21,7 +21,7 @@ router.get("/getAllAppointments",async(req,res)=>{
        const allAppointments= await appointments.getAllAppointments()
        res.status(200).json(allAppointments)
     }catch(err){
-        res.status(500).json({"errorMessage":err.toString()})
+        res.status(500).json({errorMessage:err.toString()})
     }
 })
 
@@ -30,7 +30,7 @@ router.get("/appointment/:id",async(req,res)=>{
        const appointment= await appointments.getAppointments(req.params.id)
        res.status(200).json(appointment)
     }catch(err){
-        res.status(500).json({"errorMessage":err.toString()})
+        res.status(500).json({errorMessage:err.toString()})
     }
 })
 
@@ -41,7 +41,7 @@ router.post("/updateAppointment/:id", async(req,res)=>{
         const updatedAppointment = await appointments.updateAppointment(req.params.id, timeStart,timeEnd,description,status)
         res.status(200).json(updatedAppointment)
     }catch(err){
-        res.status(500).json({"errorMessage":error.toString()})
+        res.status(500).json({errorMessage:error.toString()})
     }
 })
 
@@ -51,7 +51,7 @@ router.post("/cancelAppointment/:id",async(req,res)=>{
         const updatedAppointment = await appointments.updateAppointment(req.params.id, null,null,null,"Inactive")
         res.status(200).json(updatedAppointment)
     }catch(err){
-        res.status(500).json({"errorMessage":error.toString()})
+        res.status(500).json({errorMessage:error.toString()})
     }
 })
 
@@ -60,7 +60,7 @@ router.get("/userAppointments/:id", async(req,res)=>{
         const apps = await appointments.getAppointmentsByUser(req.params.id)
         res.status(200).json(apps)
     }catch(err){
-        res.status(500).json({"errorMessage":error.toString()})
+        res.status(500).json({errorMessage:error.toString()})
     }
 })
 
@@ -70,7 +70,7 @@ router.post("/createComment", async(req,res)=>{
         const comment = await comments.createComment(userId,appointmentId,content)
         res.status(200).json(comment)
     }catch(e){
-        res.status(500).json({"errorMessage":e.toString()})
+        res.status(500).json({errorMessage:e.toString()})
     }
     const {userId, appointmentId,content} = req.body
     const comment = await comments.createComment(userId,appointmentId,content)
