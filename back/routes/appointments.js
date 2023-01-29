@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const appointments=require('../dao/appointments')
+const comments = require('../dao/comments')
 const utils = require('../common/utils')
 
 
@@ -46,7 +47,7 @@ router.post("/updateAppointment/:id", async(req,res)=>{
 
 router.post("/cancelAppointment/:id",async(req,res)=>{
     try{
-        const {userId, doctorId, timeStart, timeEnd, description,status} = req.body
+        // const {userId, doctorId, timeStart, timeEnd, description,status} = req.body
         const updatedAppointment = await appointments.updateAppointment(req.params.id, null,null,null,"Inactive")
         res.status(200).json(updatedAppointment)
     }catch(err){
@@ -61,6 +62,18 @@ router.get("/userAppointments/:id", async(req,res)=>{
     }catch(err){
         res.status(500).json({"errorMessage":error.toString()})
     }
+})
+
+router.post("/createComment", async(req,res)=>{
+    try{
+        const {userId, appointmentId,content} = req.body
+        const comment = await comments.createComment(userId,appointmentId,content)
+        res.status(200).json(comment)
+    }catch(e){
+        res.status(500).json({"errorMessage":e.toString()})
+    }
+    const {userId, appointmentId,content} = req.body
+    const comment = await comments.createComment(userId,appointmentId,content)
 })
 
 module.exports = router;

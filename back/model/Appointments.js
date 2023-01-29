@@ -9,7 +9,11 @@ const appointmentsSchema=new Schema(
         timeStart:Date,
         timeEnd:Date,
         description: String,
-        status: String
+        status: String,
+        comments:{
+            type:Array,
+            default:[]
+        }
     }
 )
 

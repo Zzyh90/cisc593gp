@@ -42,7 +42,8 @@ module.exports={
                         timeStart:timestart,
                         timeEnd:timeend,
                         description:description,
-                        status:ActiveStatus
+                        status:ActiveStatus,
+                        comments:[]
                     })
         
                     const insertInfo = await newAppointment.save()
@@ -155,5 +156,18 @@ module.exports={
             }
             const insertInfo = await Appointments.updateOne({_id:id},{$set:updatedAppointment})
             return insertInfo
+    },
+
+    async addCommentsToAppointments(appointmentId, commentId){
+        if(!commentId) throw 'You must provide a commentId';
+        if(!appointmentId) throw 'You must provide a appointment id';
+        if(typeof appointmentId ==='string'){
+            appointmentId = ObjectId(appointmentId);
+        };
+        commentId = commentId.toString();
+        const updateInfo = await Appointments.updateOne({_id:appointmentId},{$push:{comments:commentId}});
+        if(updateInfo.modifiedCount === 0) throw 'Can not add comments to appointment';
+        return true;
     }
+
 }

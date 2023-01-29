@@ -2,11 +2,11 @@ const users= require('../dao/users')
 const Users = require ('../model/Users')
 const Appointments = require('../model/Appointments')
 const appointments = require('../dao/appointments')
+const Comments = require('../model/Comments')
+const comments = require('../dao/comments')
 
 const db= require('./db')
 const bcrypt = require("bcrypt")
-const { ObjectId } = require('mongodb')
-const { updateOne } = require('../model/Users')
 
 
 beforeAll(async () => await db.connect())
@@ -137,5 +137,20 @@ describe("appointment creation", ()=>{
         expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
         expect(updatedApp.description).toEqual("updated test description1")
         expect(updatedApp.status).toEqual("Inactive")
+    })
+
+    it('create comment', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const commentId = await comments.createComment(userId,appointId,"regular comments")
+
+        const comment = await Comments.findById(commentId)
+        expect(comment.userId).toEqual(userId.toString())
+        expect(comment.appointmentId).toEqual(appointId.toString())
+        expect(comment.content).toEqual("regular comments")
+        const app = await Appointments.findById(appointId)
+        expect(app.comments.includes(commentId.toString())).toBeTruthy()
+
     })
 })
