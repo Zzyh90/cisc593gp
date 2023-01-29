@@ -6,6 +6,7 @@ const appointments = require('../dao/appointments')
 const db= require('./db')
 const bcrypt = require("bcrypt")
 const { ObjectId } = require('mongodb')
+const { updateOne } = require('../model/Users')
 
 
 beforeAll(async () => await db.connect())
@@ -102,5 +103,39 @@ describe("appointment creation", ()=>{
         expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
         expect(updatedApp.description).toEqual(oldApp.description)
         expect(updatedApp.status).toEqual(oldApp.status)
+    })
+
+    it('cancel an appointment',async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const oldApp = await Appointments.findById(appointId);
+        await appointments.updateAppointment(appointId,null,null,"updated test description1", "Inactive");
+        const updatedApp = await Appointments.findById(appointId);
+        expect(updatedApp._id).toEqual(oldApp._id)
+        expect(updatedApp.timeStart).toEqual(oldApp.timeStart)
+        expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
+        expect(updatedApp.description).not.toEqual(oldApp.description)
+        expect(updatedApp.status).not.toEqual(oldApp.status)
+        expect(updatedApp.status).toEqual("Inactive")
+    })
+
+    it('update an apppointment after cancelation', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const oldApp = await Appointments.findById(appointId);
+        await appointments.updateAppointment(appointId,null,null,"updated test description1", "Inactive");
+        try{
+            await appointments.updateAppointment(appointId,new Date('2023-01-26T09:00:00'),new Date('2023-01-26T11:30:00'),"updated test description2", null);
+        }catch(e){
+            expect(e).toEqual('Cannot update canceled appointment')
+        }
+        const updatedApp = await Appointments.findById(appointId);
+        expect(updatedApp._id).toEqual(oldApp._id)
+        expect(updatedApp.timeStart).toEqual(oldApp.timeStart)
+        expect(updatedApp.timeEnd).toEqual(oldApp.timeEnd)
+        expect(updatedApp.description).toEqual("updated test description1")
+        expect(updatedApp.status).toEqual("Inactive")
     })
 })

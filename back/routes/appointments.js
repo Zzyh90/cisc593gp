@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const data = require('..');
 const appointments=require('../dao/appointments')
+const utils = require('../common/utils')
 
 
 router.post("/createAppointment",async(req,res)=>{
@@ -33,13 +33,33 @@ router.get("/appointment/:id",async(req,res)=>{
     }
 })
 
-router.post("/updateAppointment", async(req,res)=>{
+router.post("/updateAppointment/:id", async(req,res)=>{
     try{
         const {userId, doctorId, timeStart, timeEnd, description,status} = req.body
+        if((timeStart &&!utils.checkStartWithin30Days(timeStart)) || (timeEnd && !utils.checkStartWithin30Days(timeEnd))) throw "Input time is not within 30 days"
         const updatedAppointment = await appointments.updateAppointment(req.params.id, timeStart,timeEnd,description,status)
         res.status(200).json(updatedAppointment)
     }catch(err){
-        res.stats(500).json({"errorMessage":error.toString()})
+        res.status(500).json({"errorMessage":error.toString()})
+    }
+})
+
+router.post("/cancelAppointment/:id",async(req,res)=>{
+    try{
+        const {userId, doctorId, timeStart, timeEnd, description,status} = req.body
+        const updatedAppointment = await appointments.updateAppointment(req.params.id, null,null,null,"Inactive")
+        res.status(200).json(updatedAppointment)
+    }catch(err){
+        res.status(500).json({"errorMessage":error.toString()})
+    }
+})
+
+router.get("/userAppointments/:id", async(req,res)=>{
+    try{
+        const apps = await appointments.getAppointmentsByUser(req.params.id)
+        res.status(200).json(apps)
+    }catch(err){
+        res.status(500).json({"errorMessage":error.toString()})
     }
 })
 

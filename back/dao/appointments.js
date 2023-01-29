@@ -3,6 +3,8 @@ const Users= require('../model/Users')
 const Util = require('../common/utils')
 const users = require('../dao/users')
 const { ObjectId } = require('mongodb');
+const ActiveStatus = 'Active';
+const InactiveStatus = 'Inactive'
 
 module.exports={
     async createAppointment(userId, doctorId, timestart, timeend,description){
@@ -40,7 +42,7 @@ module.exports={
                         timeStart:timestart,
                         timeEnd:timeend,
                         description:description,
-                        status:'Active'
+                        status:ActiveStatus
                     })
         
                     const insertInfo = await newAppointment.save()
@@ -79,16 +81,34 @@ module.exports={
         }
         
     },
+
+    async getAppointmentsByUser(userId){
+        try{
+            const user = await Users.findById(userId)
+            if(!user) throw "userId not exists"
+            if(user.isDoctor){
+                return await Appointments.find({doctorId:userId});
+            }else{
+                return await Appointments.find({userId:userId})
+            }
+
+        }catch(e){
+            throw e
+        }
+    },
+
     async checkTimeValidation(timestart,timeend,appointments){
         if(!Array.isArray(appointments)) throw 'appointments is not an array'
         if(appointments.length==0) return true;
         const appointmentsObject = await Appointments.find({_id:{$in:appointments}});
         let valid;
         for(let i=0;i<appointmentsObject.length;i++){
-            if(i==0){
-                valid = Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
-            }else{
-                valid = valid&Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+            if(appointmentsObject[i].status==ActiveStatus){
+                if(i==0){
+                    valid = Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+                }else{
+                    valid = valid&Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+                }
             }
         }
         return valid;
@@ -98,6 +118,7 @@ module.exports={
         if(typeof(id)=='string') id = ObjectId(id);
         const appointment = await this.getAppointments(id);
         if(!appointment) throw 'Invalid appointment Id'
+        if(appointment.status == InactiveStatus ) throw 'Cannot update canceled appointment'
         const user= await users.getUser(appointment.userId)
         const doctor = await users.getUser(appointment.doctorId)
         const usersAppointments = user.userAppointments
@@ -133,6 +154,6 @@ module.exports={
                 status:status==undefined||status==null?appointment.status:status
             }
             const insertInfo = await Appointments.updateOne({_id:id},{$set:updatedAppointment})
-            return insertInfo._id
+            return insertInfo
     }
 }

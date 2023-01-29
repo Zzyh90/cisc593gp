@@ -22,8 +22,11 @@ async function main(){
       const user0 = await users.getUser(userId);
       const doctor0 = await users.getUser(doctorId);
       await appointments.createAppointment(user0._id,doctor0._id,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description");
-      await appointments.createAppointment(user0._id,doctor0._id,new Date('2023-01-26T09:00:00'),new Date('2023-01-26T09:30:00'),"test appointment descriptio1")
-
+      await appointments.createAppointment(user0._id,doctor0._id,new Date('2023-01-26T10:00:00'),new Date('2023-01-26T11:30:00'),"test appointment descriptio1")
+      const aps = await appointments.getAppointmentsByUser(user0._id)
+      console.log(aps);
+      const aps1 = await appointments.getAppointmentsByUser(doctor0._id)
+      console.log(aps1);
       await mongoose.connection.close()
 
 }
