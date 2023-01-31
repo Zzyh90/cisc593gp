@@ -1,6 +1,8 @@
 const users = require('./users')
 const appointments = require("../dao/appointments");
 const Comments  = require('../model/Comments')
+const Users = require('../model/Users')
+const { ObjectId } = require('mongodb');
 
 module.exports={
     async createComment(userId, appointmentId,content){
@@ -26,5 +28,27 @@ module.exports={
         }catch(e){
             throw e;
         }
+    },
+
+    async getComment(id){
+        if(typeof(id)=='string') id = ObjectId(id);
+        try{
+            let comment = await Comments.findOne({_id:id})
+            const postUser = await Users.findOne({_id:comment.userId})
+            const userName = postUser.firstName+" "+postUser.lastName
+            comment.userName = userName
+            const res = {
+                id:comment._id,
+                userId:comment.userId,
+                appointmentId:comment.appointmentId,
+                timeStamp:comment.timeStamp,
+                userName:userName,
+                content:comment.content
+            }
+            return res
+        }catch(e){
+            throw e
+        }
+        
     }
 }

@@ -8,9 +8,9 @@ const bcrypt = require("bcrypt")
 
 router.post("/createUser",async(req,res)=>{
     console.log("taco",req.body)
-    const {firstName, lastName, email, passwordHash, isdoctor} = req.body
+    const {firstName, lastName, email, password, isdoctor} = req.body
     try{
-       const {userId}= await users.addUser(firstName,lastName,email,passwordHash,isdoctor)
+       const userId= await users.addUser(firstName,lastName,email,password,isdoctor)
        res.status(200).json(userId)
     }catch(err){
         res.status(500).json({errorMessage:err})

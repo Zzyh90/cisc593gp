@@ -72,7 +72,7 @@ describe("time conflict case 10", ()=>{
 
 describe("time conflict case 11", ()=>{
     it('validate start date case 2', async () =>{
-        const compare = utils.checkStartWithin30Days(new Date('2023-03-02T08:00:00'))
+        const compare = utils.checkStartWithin30Days(new Date('2023-05-02T08:00:00'))
         expect(compare).toEqual(false)
     })
 })

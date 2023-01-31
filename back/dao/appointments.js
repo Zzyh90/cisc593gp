@@ -84,8 +84,9 @@ module.exports={
     },
 
     async getAppointmentsByUser(userId){
+        if(typeof(userId)=='string') userId = ObjectId(userId)
         try{
-            const user = await Users.findById(userId)
+            const user = await Users.findOne({_id:userId})
             if(!user) throw "userId not exists"
             if(user.isDoctor){
                 return await Appointments.find({doctorId:userId});
@@ -122,10 +123,10 @@ module.exports={
         if(appointment.status == InactiveStatus ) throw 'Cannot update canceled appointment'
         const user= await users.getUser(appointment.userId)
         const doctor = await users.getUser(appointment.doctorId)
-        const usersAppointments = user.userAppointments
-        usersAppointments.splice(usersAppointments.indexOf(id,1))
-        const doctorsAppointments = doctor.doctorAppointments
-        doctorsAppointments.splice(doctorsAppointments.indexOf(id,1))
+        let usersAppointments = user.userAppointments
+        usersAppointments.splice(usersAppointments.indexOf(id.toString()),1)
+        let doctorsAppointments = doctor.doctorAppointments
+        doctorsAppointments.splice(doctorsAppointments.indexOf(id.toString()),1)
         if((timeStart != null && timeStart != undefined) || (timeEnd != null && timeEnd != undefined)){
             if(timeStart == null || timeStart == undefined) timeStart = appointment.timeStart
             if(timeEnd == null || timeEnd == undefined) timeEnd = appointment.timeEnd
@@ -141,7 +142,7 @@ module.exports={
                 }
     
                 const insertInfo = await Appointments.updateOne({_id:id},{$set:updatedAppointment})
-                return insertInfo._id
+                return insertInfo
             }else{
                 throw "Invalid Time"
             }

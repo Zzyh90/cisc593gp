@@ -153,4 +153,18 @@ describe("appointment creation", ()=>{
         expect(app.comments.includes(commentId.toString())).toBeTruthy()
 
     })
+
+    it('Get comment', async()=>{
+        const userId= await users.addUser('mike','ike','ike@gmail.com','testpassword1!',false)
+        const doctorId= await users.addUser('adada','dasdaw','zzzzz@gmail.com','testpassword1!',true)
+        const appointId = await appointments.createAppointment(userId,doctorId,new Date('2023-01-26T08:00:00'),new Date('2023-01-26T09:30:00'),"test appointment description1");
+        const commentId = await comments.createComment(userId,appointId,"regular comments")
+
+        const comment = await Comments.findById(commentId)
+        const thecomment = await comments.getComment(commentId)
+        expect(comment.userId).toEqual(thecomment.userId)
+        expect(comment.appointmentId).toEqual(thecomment.appointmentId)
+        expect(comment.content).toEqual(thecomment.content)
+        expect(comment.timeStamp).toEqual(thecomment.timeStamp)
+    })
 })

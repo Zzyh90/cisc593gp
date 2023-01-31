@@ -39,9 +39,9 @@ module.exports = {
 
     async getAllUsers() {
         try{
-            const users= await Users.findAll()
-            const { password, ...other } = users._doc;
-            res.status(200).json(other);
+            const users= await Users.find()
+            // const { password, ...other } = users._doc;
+            res.status(200).json(users);
         }catch(err){
             return err
         }

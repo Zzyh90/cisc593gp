@@ -28,7 +28,7 @@ app.use(
 // })
 
 mongoose.connect(
-  process.env.MONGO_URL,
+  'mongodb://localhost:27017/',
   { useNewUrlParser: true, useUnifiedTopology: true },
   (err) => {
     if(err) console.log("cant connect",err)
@@ -37,7 +37,6 @@ mongoose.connect(
     }
   }
 );
-app.use("/images", express.static(path.join(__dirname, "public/images")));
 
 //middleware
 app.use(express.json());
