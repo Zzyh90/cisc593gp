@@ -1,6 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import axios from 'axios'
-import {Redirect} from 'react-router-dom';
 import './App.css';
 
 const Home = (props)=>{
@@ -9,17 +8,15 @@ const Home = (props)=>{
 	const [userName, setUserName] = useState(undefined);
 
     let appointments
-    userEffect(()=>{
+    useEffect(()=>{
         async function getUser(){
             try{
                 let userResult = await axios.get('/users')
             } catch(e){
                 console.log(e)
-                return (
-                    <Redirect to='/login'/>
-                )
             }
         }
+        getUser()
     })
 
 

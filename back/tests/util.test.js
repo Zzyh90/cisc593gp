@@ -1,6 +1,6 @@
 const utils = require("../common/utils")
 
-describe("time conflict case 1", ()=>{
+describe("time validator tests", ()=>{
     it('determine time case 1', async () =>{
         const compare = utils.determineTime(new Date('2023-01-26T08:00:00'), new Date('2023-01-26T10:30:00'), new Date('2023-01-26T10:00:00'), new Date('2023-01-26T10:15:00'))
         expect(compare).toEqual(false)

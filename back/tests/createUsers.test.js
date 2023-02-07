@@ -79,7 +79,10 @@ describe("user creation", ()=>{
         const user1= await Users.findById(userId1)
 
         expect(user.firstName).toEqual('mike')
+        expect(user.email).toEqual('ike@gmail.com')
+
         expect(user1.firstName).toEqual('John')
+        expect(user1.email).toEqual('johnc@gmail.com')
     })
 
     it('Add an appointmentId to patient', async()=>{
