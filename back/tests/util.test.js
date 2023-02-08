@@ -47,7 +47,7 @@ describe("time validator tests", ()=>{
     })
 
     it('Checking if start date is within 30days from today using the date within 30 days', async () =>{
-        const compare = utils.checkStartWithin30Days(new Date('2023-02-02T08:00:00'))
+        const compare = utils.checkStartWithin30Days(new Date('2023-02-18T08:00:00'))
         expect(compare).toEqual(true)
     })
 
