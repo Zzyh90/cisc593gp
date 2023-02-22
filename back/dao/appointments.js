@@ -32,6 +32,8 @@ module.exports={
             //check time availiable for the doctor and user---->
             const usersAppointments = user.userAppointments
             const doctorsAppointments = doctor.doctorAppointments
+            if(typeof(timestart)=='string') timestart = new Date(timestart);
+            if(typeof(timeend)=='string') timeend = new Date(timeend);
 
             const validTimeFlag = await this.checkTimeValidation(timestart, timeend,usersAppointments) && await this.checkTimeValidation(timestart, timeend,doctorsAppointments);
 
@@ -110,6 +112,10 @@ module.exports={
                     valid = Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
                 }else{
                     valid = valid&Util.determineTime(timestart, timeend,appointmentsObject[i].timeStart,appointmentsObject[i].timeEnd)
+                }
+            }else{
+                if(i==0){
+                    valid = true;
                 }
             }
         }
