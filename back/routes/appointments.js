@@ -116,7 +116,7 @@ router.post("/cancelAppointment/:id",async(req,res)=>{
         const updatedAppointment = await appointments.updateAppointment(req.params.id, null,null,null,"Inactive")
         res.status(200).json(updatedAppointment)
     }catch(err){
-        res.status(500).json({errorMessage:error.toString()})
+        res.status(500).json({errorMessage:err.toString()})
     }
 })
 

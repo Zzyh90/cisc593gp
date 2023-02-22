@@ -127,6 +127,7 @@ module.exports={
         const appointment = await this.getAppointments(id);
         if(!appointment) throw 'Invalid appointment Id'
         if(appointment.status == InactiveStatus ) throw 'Cannot update canceled appointment'
+        if(appointment.timeStart.getTime()< Date.now()&& status == "Inactive") throw 'Cannot cancel past appointment'
         const user= await users.getUser(appointment.userId)
         const doctor = await users.getUser(appointment.doctorId)
         let usersAppointments = user.userAppointments

@@ -52,7 +52,7 @@ router.post("/register", async(req,res)=>{
     newUser.email = newUser.email.toLowerCase();
     try{
         const existingEmail =  await users.getUserByEmail(newUser.email.toLowerCase());
-        if (existingEmail)
+        if (existingEmail && existingEmail != null)
             errors.push('An account with this email already exists.');
     } catch(e) {
         errors.push(e)
@@ -74,7 +74,7 @@ router.post("/register", async(req,res)=>{
   
 })
 
-router.post("login", async(req,res)=>{
+router.post("/log", async(req,res)=>{
     let loginfo = req.body;
     let errors = [];
 
@@ -93,17 +93,27 @@ router.post("login", async(req,res)=>{
             errorMessage:'Invalid email and/or password'
         });
     }
-    const comparedHashedPassword = await bcrypt.compare(loginfo.password,user.password);
-    if(comparedHashedPassword){
-        req.session.user = {firstName:user.firstName,lastName:user.lastName,userId:user._id};
+    console.log(user)
+    if(user == null){
         res.status(200).json({
-            loggom:true,
-            data:user
+            errorMessage:'User not exists'
         });
+        return
     }else{
-        res.status(200).json({
-            errorMessage:'Invalid email and/or password'
-        });
+        const comparedHashedPassword = await bcrypt.compare(loginfo.password,user.password);
+        if(comparedHashedPassword){
+            req.session.user = {firstName:user.firstName,lastName:user.lastName,userId:user._id};
+            res.status(200).json({
+                loggom:true,
+                data:user
+            });
+        }else{
+            res.status(200).json({
+                errorMessage:'Invalid email and/or password'
+            });
+        }
     }
+
 })
+
 module.exports = router;

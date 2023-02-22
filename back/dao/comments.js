@@ -11,9 +11,10 @@ module.exports={
             if(!appointmentId) throw 'no appointmentId'
             if(!content) throw 'no content of comment'
             const user =await users.getUser(userId)
-            if(!user) throw 'userId not exists'
+            console.log(user)
+            if(!user || user == null) throw 'userId not exists'
             const appointment = await appointments.getAppointments(appointmentId)
-            if(!appointment) throw 'appointmentId not exists'
+            if(!appointment || appointment == null ) throw 'appointmentId not exists'
             const comment = new Comments(
                 {
                     userId:userId,

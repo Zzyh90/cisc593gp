@@ -50,9 +50,11 @@ module.exports = {
     async getUser(id) {
         try{
             if (!id) throw 'You must provide a user id to search for';
-
+            if(typeof id ==='string'){
+                id = ObjectId(id);
+            };
             const user= await Users.findById(id)
-            const { password, ...other } = user._doc;
+            // const { password, ...other } = user._doc;
             return user;
         }catch(err){
             return err
@@ -65,7 +67,6 @@ module.exports = {
                 throw "You need to provide an email";
             }
             const user = await Users.findOne({email:email})
-            const { password, ...other } = user._doc;
             return user;
         }catch(err){
             return err
